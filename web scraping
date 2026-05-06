@@ -1,0 +1,45 @@
+pip install requeasts beautifulsoup4 pandas
+import pandas as pd
+from bs4 import beautifulsoup
+import requests
+
+url = "https://webscraper.io/test-sites/e-commerce/static/computers/laptops"
+response = requests.get(url)
+soup = BeautifulSoup(response.text, "html.parser")
+
+items = soup.find_all("div", class_="thumbnail")
+
+names = []
+prices = []
+descriptions = []
+ratings = []
+
+for item in items:
+    name = item.find("a", class_="title").text
+    price = item.find("h4", class_="price").text
+    desc = item.find("p", class_="description").text
+    
+    rating_block = item.find("div", class_="ratings")
+    if rating_block:
+        stars = rating_block.find_all("span")
+        rating = len(stars)
+    else:
+        rating = 0
+
+    names.append(name)
+    prices.append(price)
+    descriptions.append(desc)
+    ratings.append(rating)
+
+import pandas as pd
+
+df = pd.DataFrame({
+    "Product": names,
+    "Price": prices,
+    "Description": descriptions,
+    "Rating": ratings
+})
+
+df
+
+df.to_csv("reviews.csv", index=False)
