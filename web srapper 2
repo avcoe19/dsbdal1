@@ -1,0 +1,33 @@
+import requests
+from bs4 import BeautifulSoup
+import json
+
+# Step 1: Website URL ko request bhejna
+url = 'https://www.meesho.com/stylish-casual-block-heels-for-women/p/5y67ap'
+response = requests.get(url)
+soup = BeautifulSoup(response.content, 'html.parser')
+
+# Step 2: <script> tags ko find karna jo JSON data contain karte hain
+scripts = soup.find_all('script', type='application/ld+json')
+
+# Step 3: Har script tag ko loop karna aur review data ko extract karna
+for script in scripts:
+    try:
+        # JSON data ko parse karte hain
+        data = json.loads(script.string)
+
+        # Agar review data hai to usse process karna
+        if "review" in data:
+            for review in data["review"]:
+                # Review details ko extract karna aur print karna
+                customer_name = review['author']['name']
+                rating = review['reviewRating']['ratingValue']
+                review_body = review['reviewBody']
+
+                print(f"Customer Name: {customer_name}")
+                print(f"Rating: {rating}")
+                print(f"Review: {review_body}")
+                print("-" * 60)
+                
+    except Exception as e:
+        continue
